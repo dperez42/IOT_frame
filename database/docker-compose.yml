@@ -39,7 +39,7 @@ services:
       - ./postgres.env
     volumes:
       - ./pgadmin/servers.json:/pgadmin4/servers.json # preconfigured servers/connections
-      - ./pgadmin/pgpass.env:/pgpass # passwords for the connections in this file
+      - ./pgadmin/pgpass.env:/pgpass                  # passwords for the connections in this file
     depends_on:
       - postgres-db
     networks:
