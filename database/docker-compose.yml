@@ -1,0 +1,46 @@
+version: '3.7'
+
+networks:
+  postgres_network:
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    env_file:
+      - ./postgres.env
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      TZ: "Europe/Madrid"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      #- ./database/init_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - postgres_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest 
+    container_name: postgres-admin
+    restart: always
+    ports:
+      - 5050:80
+    environment:
+      TZ: "Europe/Madrid"
+    logging:
+      driver: json-file
+    env_file:
+      - ./postgres.env
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json # preconfigured servers/connections
+      - ./pgadmin/pgpass.env:/pgpass # passwords for the connections in this file
+    depends_on:
+      - postgres-db
+    networks:
+      - postgres_network
